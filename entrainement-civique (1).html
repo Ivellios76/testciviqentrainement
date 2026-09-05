@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entraînement — Examen civique de naturalisation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16233F;
+    --navy-2:#22335A;
+    --paper:#F6F1E6;
+    --paper-2:#EFE7D6;
+    --red:#B23B34;
+    --red-dark:#8C2C27;
+    --gold:#A9822F;
+    --green:#2F6B4F;
+    --ink:#232323;
+    --line:#D9CFB8;
+    --white:#FFFDF8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 100% 0%, rgba(178,59,52,0.06), transparent 40%),
+      radial-gradient(circle at 0% 100%, rgba(22,35,63,0.06), transparent 40%);
+    color:var(--ink);
+    font-family:'Public Sans', sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .tricolore{ height:6px; width:100%; background:linear-gradient(90deg, var(--navy) 0 33.3%, var(--white) 33.3% 66.6%, var(--red) 66.6% 100%); }
+
+  .app{ max-width:920px; margin:0 auto; padding:0 20px 80px; }
+
+  header.masthead{
+    padding:34px 0 22px;
+    border-bottom:2px solid var(--navy);
+    margin-bottom:30px;
+  }
+  .eyebrow{
+    font-family:'Public Sans';
+    font-weight:700;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-size:11.5px;
+    color:var(--red-dark);
+    margin-bottom:8px;
+  }
+  h1.title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(28px, 4.4vw, 42px);
+    line-height:1.08;
+    margin:0 0 8px;
+    color:var(--navy);
+  }
+  .subtitle{ font-size:15px; color:#555; max-width:56ch; line-height:1.5; }
+
+  .toolbar{ display:flex; justify-content:flex-end; align-items:center; gap:16px; margin-top:16px; flex-wrap:wrap; }
+  .timed-toggle{
+    display:flex; align-items:center; gap:7px;
+    font-size:12.5px; font-weight:600; color:var(--navy-2);
+    cursor:pointer; user-select:none;
+  }
+  .timed-toggle input{ accent-color:var(--red-dark); cursor:pointer; }
+  .timer-display{
+    font-family:'Fraunces'; font-weight:600; font-size:17px;
+    padding:5px 14px; border-radius:20px; border:1.5px solid var(--navy);
+    color:var(--navy); background:var(--white); letter-spacing:.02em;
+  }
+  .timer-display.warning{ border-color:var(--red); color:var(--red-dark); background:#FBEFE9; animation:pulseTimer 1s infinite; }
+  @keyframes pulseTimer{ 0%,100%{opacity:1;} 50%{opacity:.55;} }
+  .btn-reset{
+    background:none; border:1px solid var(--line); color:#6b6250;
+    font-family:'Public Sans'; font-size:12.5px; font-weight:600;
+    padding:7px 14px; border-radius:3px; cursor:pointer;
+    letter-spacing:.02em;
+  }
+  .btn-reset:hover{ border-color:var(--red); color:var(--red-dark); }
+
+  /* Progress overview */
+  .progress-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:22px 24px;
+    margin-bottom:32px;
+    box-shadow:0 1px 0 rgba(0,0,0,0.02);
+  }
+  .progress-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; flex-wrap:wrap; gap:6px;}
+  .progress-label{ font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--navy); }
+  .progress-count{ font-family:'Fraunces'; font-size:22px; color:var(--red-dark); font-weight:600; }
+  .progress-bar-track{ height:9px; background:var(--paper-2); border-radius:5px; overflow:hidden; border:1px solid var(--line); }
+  .progress-bar-fill{ height:100%; background:linear-gradient(90deg, var(--red-dark), var(--red)); transition:width .5s ease; }
+
+  /* Session list */
+  .session-grid{ display:flex; flex-direction:column; gap:14px; }
+  .session-card{
+    position:relative;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-left:5px solid var(--navy);
+    border-radius:3px;
+    padding:20px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .session-card:hover{ transform:translateY(-1px); box-shadow:0 6px 18px rgba(22,35,63,0.09); }
+  .session-card.done{ border-left-color:var(--green); }
+  .session-card.hardcore{ border-left-color:#3B1F1D; background:linear-gradient(90deg, #FBF3EA 0%, var(--white) 18%); }
+  .session-card.hardcore.done{ border-left-color:var(--green); }
+  .session-card.hardcore .session-num{ color:var(--red-dark); }
+  .session-card.locked{ cursor:default; opacity:.55; }
+  .session-card.locked:hover{ transform:none; box-shadow:none; }
+  .session-left{ display:flex; align-items:baseline; gap:14px; }
+  .session-num{ font-family:'Fraunces'; font-size:30px; color:var(--navy); font-weight:600; min-width:44px; }
+  .session-info h3{ margin:0 0 4px; font-size:16.5px; font-family:'Public Sans'; font-weight:700; color:var(--navy); }
+  .session-info p{ margin:0; font-size:12.5px; color:#77705f; }
+  .session-cta{ font-size:12.5px; font-weight:700; color:var(--red-dark); text-transform:uppercase; letter-spacing:.06em; white-space:nowrap;}
+
+  .stamp{
+    position:absolute; top:14px; right:18px;
+    border:2.5px solid var(--red);
+    color:var(--red);
+    font-family:'Public Sans'; font-weight:800; font-size:11px;
+    letter-spacing:.08em;
+    padding:4px 9px;
+    border-radius:3px;
+    transform:rotate(-9deg);
+    opacity:.85;
+  }
+
+  .congrats{
+    background:var(--navy);
+    color:var(--paper);
+    border-radius:4px;
+    padding:30px 26px;
+    margin-bottom:30px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .congrats::before{ content:""; position:absolute; inset:0; background:linear-gradient(120deg, rgba(178,59,52,0.25), transparent 55%); }
+  .congrats h2{ font-family:'Fraunces'; font-size:26px; margin:0 0 8px; position:relative; }
+  .congrats p{ margin:0; font-size:14px; color:#D9D3C4; position:relative; }
+
+  /* Quiz screen */
+  .quiz-header{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:18px; flex-wrap:wrap; gap:10px;
+  }
+  .quiz-progress-text{ font-size:12.5px; font-weight:700; color:var(--navy); text-transform:uppercase; letter-spacing:.06em; }
+  .cat-tag{
+    display:inline-block; font-size:11px; font-weight:700; letter-spacing:.05em;
+    text-transform:uppercase; padding:3px 9px; border-radius:20px;
+    background:var(--paper-2); color:var(--navy-2); border:1px solid var(--line);
+  }
+  .quiz-bar-track{ height:5px; background:var(--paper-2); border-radius:3px; overflow:hidden; margin-bottom:26px; }
+  .quiz-bar-fill{ height:100%; background:var(--navy); transition:width .3s ease; }
+
+  .question-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:30px 28px;
+  }
+  .q-text{
+    font-family:'Fraunces'; font-weight:500; font-size:clamp(19px,2.6vw,23px);
+    color:var(--navy); line-height:1.35; margin:0 0 24px;
+  }
+  .choices{ display:flex; flex-direction:column; gap:10px; }
+  .choice{
+    display:flex; align-items:flex-start; gap:12px;
+    border:1.5px solid var(--line); background:var(--paper);
+    border-radius:4px; padding:13px 16px; cursor:pointer;
+    font-size:14.5px; line-height:1.4; transition:border-color .12s, background .12s;
+  }
+  .choice:hover{ border-color:var(--navy-2); }
+  .choice.selected{ border-color:var(--red); background:#FBEFE9; }
+  .choice-letter{
+    flex:0 0 auto; width:24px; height:24px; border-radius:50%;
+    border:1.5px solid #9d9482; display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; color:#6b6250; background:var(--white);
+  }
+  .choice.selected .choice-letter{ border-color:var(--red); color:var(--red-dark); background:#fff; }
+
+  .quiz-nav{ display:flex; justify-content:space-between; margin-top:26px; align-items:center; }
+  .btn{
+    font-family:'Public Sans'; font-weight:700; font-size:13.5px;
+    padding:11px 22px; border-radius:3px; cursor:pointer; border:none;
+    letter-spacing:.02em;
+  }
+  .btn-primary{ background:var(--navy); color:var(--white); }
+  .btn-primary:hover{ background:var(--navy-2); }
+  .btn-primary:disabled{ background:#b9b4a5; cursor:not-allowed; }
+  .btn-ghost{ background:none; color:var(--navy); border:1.5px solid var(--navy); }
+  .btn-ghost:hover{ background:var(--navy); color:var(--white); }
+  .btn-ghost:disabled{ opacity:.35; cursor:not-allowed; border-color:#b9b4a5; color:#b9b4a5; }
+  .btn-finish{ background:var(--red-dark); color:var(--white); }
+  .btn-finish:hover{ background:var(--red); }
+
+  .dots{ display:flex; gap:5px; flex-wrap:wrap; max-width:220px; }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--line); }
+  .dot.answered{ background:var(--gold); }
+  .dot.current{ background:var(--navy); transform:scale(1.3); }
+
+  /* Results */
+  .score-banner{
+    background:var(--navy); color:var(--white); border-radius:5px;
+    padding:32px 28px; text-align:center; margin-bottom:30px; position:relative; overflow:hidden;
+  }
+  .score-banner::after{ content:""; position:absolute; inset:0; background:linear-gradient(120deg, rgba(178,59,52,0.22), transparent 60%); }
+  .score-big{ font-family:'Fraunces'; font-size:52px; font-weight:600; position:relative; }
+  .score-sub{ font-size:13.5px; color:#D9D3C4; letter-spacing:.04em; text-transform:uppercase; font-weight:700; position:relative; margin-top:4px;}
+
+  .review-item{
+    background:var(--white); border:1px solid var(--line); border-radius:4px;
+    padding:18px 20px; margin-bottom:12px;
+  }
+  .review-item.wrong{ border-left:4px solid var(--red); }
+  .review-item.right{ border-left:4px solid var(--green); }
+  .review-q{ font-weight:700; font-size:14.5px; color:var(--navy); margin-bottom:10px; }
+  .review-line{ font-size:13.5px; margin:4px 0; display:flex; gap:8px; }
+  .review-line .tag{ font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; flex:0 0 auto; padding-top:1px;}
+  .tag.your{ color:var(--red-dark); }
+  .tag.correct{ color:var(--green); }
+
+  .back-row{ display:flex; justify-content:center; margin-top:26px; }
+
+  footer.pagefoot{ text-align:center; margin-top:50px; font-size:11.5px; color:#9b917a; letter-spacing:.03em; }
+
+  @media (max-width:560px){
+    .session-card{ flex-direction:column; align-items:flex-start; }
+    .session-cta{ align-self:flex-end; }
+    .quiz-nav{ flex-wrap:wrap; gap:12px; }
+  }
+
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="tricolore"></div>
+<div class="app">
+
+  <header class="masthead">
+    <div class="eyebrow">Préparation à l'entretien de naturalisation</div>
+    <h1 class="title">Entraînement à l'examen civique</h1>
+    <p class="subtitle">320 questions au total : 200 en tronc commun (5 séances de 40) et 120 en mode Hardcore (3 séances supplémentaires, plus techniques). Chaque question n'apparaît qu'une seule fois sur l'ensemble du parcours.</p>
+    <div class="toolbar">
+      <label class="timed-toggle" for="timedToggle">
+        <input type="checkbox" id="timedToggle"> ⏱ Mode chronométré (40 min / séance)
+      </label>
+      <button class="btn-reset" id="resetBtn">↺ Réinitialiser la progression</button>
+    </div>
+  </header>
+
+  <main id="screen-home"></main>
+  <main id="screen-quiz" class="hidden"></main>
+  <main id="screen-results" class="hidden"></main>
+
+  <footer class="pagefoot">Outil de révision personnel — ne remplace pas les supports officiels de l'OFII.</footer>
+</div>
+
+<script>
+/* =========================================================
+   BANQUE DE QUESTIONS — 200 questions, 40 par thème
+   correct = index (0..3) de la bonne réponse AVANT mélange
+   ========================================================= */
+const CATS = {
+  principes:   { label: "Principes et valeurs de la République", color: "#B23B34" },
+  institutions:{ label: "Système institutionnel et politique",    color: "#16233F" },
+  droits:      { label: "Droits et devoirs",                      color: "#A9822F" },
+  histoire:    { label: "Histoire, géographie et culture",        color: "#2F6B4F" },
+  societe:     { label: "Vivre dans la société française",        color: "#6B4C9A" },
+};
+
+const BANK = {
+principes: [
+["Quelle est la devise de la République française ?",["Liberté, Égalité, Fraternité","Liberté, Égalité, Solidarité","Unité, Égalité, Fraternité","Liberté, Justice, Fraternité"],0],
+["Complétez les paroles de la Marseillaise : « Allons enfants de la patrie, ... »",["le jour de gloire est arrivé","la victoire nous attend","le soleil se lève enfin","l'heure de la liberté sonne"],0],
+["Complétez : « Aux armes ... ! Formez vos bataillons »",["citoyens","soldats","patriotes","Français"],0],
+["Que représente Marianne ?",["L'incarnation de la République française et de ses valeurs","La reine de France","Une héroïne de la Révolution ayant réellement existé","La sainte patronne de la France"],0],
+["Sur quels supports peut-on voir Marianne ?",["Les mairies, les timbres, le sceau de l'État","Uniquement sur les billets de banque actuels","Uniquement sur le drapeau","Sur la carte Vitale"],0],
+["Quelles sont les couleurs du drapeau français ?",["Bleu, blanc, rouge","Bleu, blanc, vert","Rouge, blanc, or","Bleu, jaune, rouge"],0],
+["Quelle est la date de la fête nationale française ?",["Le 14 juillet","Le 8 mai","Le 11 novembre","Le 1er mai"],0],
+["Que commémore la fête nationale du 14 juillet ?",["La prise de la Bastille en 1789 et la fête de la Fédération de 1790","La prise du pouvoir par Napoléon","La signature du traité de Versailles","La proclamation de la Ve République"],0],
+["Qu'est-ce que la Marseillaise ?",["L'hymne national de la France","Le nom donné au drapeau français","Une danse traditionnelle française","Le surnom donné à Marianne"],0],
+["Qui était Monsieur Rouget de Lisle ?",["L'auteur des paroles et de la musique de la Marseillaise","Le premier président de la République","Un peintre ayant représenté Marianne","Le rédacteur de la Déclaration des droits de l'homme"],0],
+["Que dit l'article 1er de la Constitution française ?",["« La France est une République indivisible, laïque, démocratique et sociale »","« La France est une monarchie constitutionnelle »","« La souveraineté appartient au seul président »","« La religion catholique est la religion de l'État »"],0],
+["Quel est le régime politique de la France ?",["Une République","Une monarchie parlementaire","Une fédération d'États","Une théocratie"],0],
+["Quels sont des symboles officiels de la République française ?",["Le drapeau tricolore, Marianne, la devise, l'hymne national","Le coq gaulois uniquement","La tour Eiffel et Notre-Dame","Le blason royal des Bourbons"],0],
+["Peut-on brûler publiquement un drapeau français ?",["Non, c'est interdit et sanctionné par la loi","Oui, sans aucune restriction","Oui, mais seulement lors de manifestations autorisées","Oui, à condition de prévenir la police"],0],
+["Une des valeurs de la devise républicaine est l'égalité. Qu'est-ce que cela signifie ?",["Tous les citoyens ont les mêmes droits et devoirs, sans distinction","Tous les citoyens gagnent le même salaire","Tous les citoyens doivent pratiquer la même religion","Tous les citoyens votent pour le même parti"],0],
+["Que signifie le mot « fraternité » dans la devise française ?",["La solidarité et l'entraide entre tous les citoyens","L'obligation d'avoir des liens familiaux avec un Français","Le respect strict de la hiérarchie sociale","L'unité entre les seuls membres d'une même famille"],0],
+["Qu'est-ce qu'une liberté ?",["Un droit reconnu à toute personne de faire ou de penser quelque chose, dans le respect de la loi","Une obligation imposée par l'État","Un privilège réservé à certains citoyens","Une règle que seuls les élus doivent respecter"],0],
+["Qu'est-ce que la liberté d'association ?",["Le droit de créer ou d'adhérer librement à une association","L'obligation d'adhérer à un syndicat","Le droit de créer un parti politique uniquement","Le droit réservé aux Français de naissance"],0],
+["La liberté d'expression sur les réseaux sociaux en France est :",["Garantie, mais encadrée par la loi (diffamation, injure, incitation à la haine interdites)","Totalement illimitée, aucune sanction possible","Interdite pour les sujets politiques","Réservée aux personnes majeures de nationalité française"],0],
+["Pour quel motif peut-on limiter la liberté d'expression ?",["L'incitation à la haine, la diffamation ou l'atteinte à l'ordre public","Le simple fait d'exprimer une opinion différente du gouvernement","La critique d'un parti politique","Le fait de parler une langue étrangère"],0],
+["A-t-on le droit d'insulter publiquement quelqu'un parce qu'il est différent (handicap, apparence physique, sexe...) ?",["Non, c'est une discrimination punie par la loi","Oui, au nom de la liberté d'expression","Oui, si cela reste sur les réseaux sociaux","Oui, tant qu'il n'y a pas de violence physique"],0],
+["Un employeur refuse d'embaucher des femmes dans son entreprise. Que dit la loi ?",["C'est une discrimination interdite et punie par la loi","C'est autorisé si le poste est physique","C'est autorisé si l'entreprise est petite","C'est autorisé sauf dans la fonction publique"],0],
+["Certains métiers peuvent-ils être légalement réservés aux hommes ?",["Non, en principe l'égal accès à l'emploi est garanti","Oui, tous les métiers manuels","Oui, tous les métiers de direction","Oui, si l'employeur le décide"],0],
+["Que garantit la liberté de circulation ?",["Le droit de se déplacer et de choisir librement sa résidence sur le territoire","Le droit de circuler en voiture sans permis","Le droit d'entrer dans n'importe quel pays sans visa","Le droit de stationner n'importe où"],0],
+["À quoi sert un titre de séjour ?",["À autoriser légalement un étranger à résider et circuler en France","À donner automatiquement la nationalité française","À voter aux élections nationales","À être exempté d'impôts"],0],
+["En France, les impôts permettent de financer les dépenses publiques. Quelle proposition est correcte ?",["Ils financent les écoles, hôpitaux, routes et services publics","Ils financent uniquement les salaires des ministres","Ils sont facultatifs pour les résidents étrangers","Ils ne financent que la Défense nationale"],0],
+["Déclarer ses revenus aux services fiscaux est :",["Une obligation annuelle pour tout foyer fiscal","Facultatif si les revenus sont faibles","Réservé aux seuls salariés","Une démarche à faire une seule fois dans sa vie"],0],
+["Concernant la pratique religieuse en France, quelle proposition est correcte ?",["Chacun est libre de pratiquer, de changer ou de ne pas pratiquer de religion","Seules certaines religions sont autorisées","La pratique religieuse est interdite dans l'espace public","Il faut déclarer sa religion à la mairie"],0],
+["Une personne a-t-elle le droit de ne pas croire en une religion ?",["Oui, c'est garanti par la liberté de conscience","Non, la loi impose une croyance","Oui, mais uniquement pour les Français de naissance","Non, sauf dérogation préfectorale"],0],
+["En tant que parent, peut-on refuser que son enfant participe aux cours de sport à l'école car ils sont mixtes ?",["Non, l'enseignement public est laïque et obligatoire pour tous les élèves","Oui, sur simple demande écrite","Oui, si le motif est religieux","Oui, à partir du collège seulement"],0],
+["En quelle année la loi de séparation des Églises et de l'État a-t-elle été votée ?",["1905","1789","1946","1958"],0],
+["Que dit la loi de 1905 ?",["Elle sépare les Églises et l'État et garantit la liberté de conscience","Elle instaure le mariage civil","Elle rend l'école gratuite","Elle abolit la monarchie"],0],
+["Selon le principe de laïcité, que signifie la neutralité de l'État ?",["L'État ne favorise ni ne finance aucune religion en particulier","L'État interdit toute pratique religieuse privée","L'État impose une religion officielle","L'État finance également toutes les religions à parts égales"],0],
+["Quel droit est garanti par la laïcité ?",["La liberté de conscience et l'égalité de tous devant la loi, quelle que soit leur religion","Le droit de porter des signes religieux dans toutes les administrations","Le droit d'imposer sa religion à autrui","Un droit réservé aux religions monothéistes"],0],
+["Pourquoi le principe de laïcité doit-il être respecté à l'école publique ?",["Pour garantir un enseignement neutre, commun à tous les élèves quelles que soient leurs convictions","Parce que la religion catholique y est enseignée obligatoirement","Parce que l'école appartient à l'Église","Parce que les enseignants doivent être croyants"],0],
+["À l'école publique, qui peut porter des signes religieux ostensibles ?",["Personne, ni les élèves ni les personnels, en application de la loi de 2004","Tous les élèves, sans restriction","Uniquement les enseignants","Uniquement en dehors des cours"],0],
+["Qui doit respecter la neutralité religieuse dans une préfecture ou une mairie ?",["Les agents publics dans l'exercice de leurs fonctions","Uniquement les usagers étrangers","Uniquement le préfet","Personne, la neutralité ne s'applique pas aux administrations"],0],
+["Que peut faire un usager du service public dans une mairie ?",["Exprimer ses convictions personnelles, sans exiger un traitement différencié pour motif religieux","Exiger un agent de sa propre religion","Refuser d'être reçu par un agent du sexe opposé","Demander la fermeture du service pendant les fêtes religieuses"],0],
+["Quelle est la place de la langue française dans la République ?",["C'est la langue officielle de la République, inscrite dans la Constitution","C'est une langue parmi d'autres sans statut particulier","Elle n'est officielle que dans l'administration parisienne","Elle partage un statut strictement égal avec les langues régionales"],0],
+["Que fait l'État pour lutter contre les discriminations ?",["Il légifère, sanctionne les auteurs et soutient des organismes dédiés comme le Défenseur des droits","Il laisse les tribunaux civils s'en occuper uniquement sur plainte des associations","Il ne peut rien faire, cela relève de la sphère privée","Il se contente de sensibiliser sans jamais sanctionner"],0],
+],
+institutions: [
+["Qui nomme le Premier ministre ?",["Le président de la République","L'Assemblée nationale","Le Sénat","Le peuple par référendum"],0],
+["Qui dirige l'action du Gouvernement ?",["Le Premier ministre","Le président de la République","Le président de l'Assemblée nationale","Le Conseil constitutionnel"],0],
+["Quel est le rôle du président de la République ?",["Chef de l'État, garant des institutions et de la Constitution","Il vote directement toutes les lois","Il dirige seul le gouvernement, sans Premier ministre","Il est le chef de l'opposition"],0],
+["Quelle est la durée du mandat du président de la République ?",["5 ans, renouvelable","7 ans, non renouvelable","4 ans, renouvelable une seule fois","6 ans, non renouvelable"],0],
+["Depuis quand les Français élisent-ils le président au suffrage universel direct ?",["Depuis 1965","Depuis 1789","Depuis 1958","Depuis 1981"],0],
+["Le président de la République a-t-il tous les pouvoirs ?",["Non, ses pouvoirs sont limités par la Constitution et la séparation des pouvoirs","Oui, il peut modifier seul la Constitution","Oui, il peut dissoudre le Sénat à tout moment","Oui, il nomme seul tous les juges du pays"],0],
+["Le Parlement est composé de :",["L'Assemblée nationale et le Sénat","L'Assemblée nationale uniquement","Le gouvernement et le Sénat","Le Conseil constitutionnel et l'Assemblée nationale"],0],
+["Combien de députés composent l'Assemblée nationale ?",["577","348","925","450"],0],
+["Pour combien de temps sont élus les députés ?",["5 ans","6 ans","7 ans","9 ans"],0],
+["Pour combien de temps sont élus les sénateurs ?",["6 ans, renouvelables par moitié tous les 3 ans","5 ans, comme les députés","9 ans, sans renouvellement","4 ans, renouvelables intégralement"],0],
+["Comment sont élus les sénateurs ?",["Au suffrage universel indirect, par des grands électeurs","Au suffrage universel direct par tous les citoyens","Nommés directement par le président","Élus uniquement par les députés"],0],
+["Qui vote les lois ?",["Le Parlement (Assemblée nationale et Sénat)","Le président de la République seul","Le Conseil constitutionnel","Le Premier ministre seul"],0],
+["La séparation des pouvoirs est un principe fondamental. Quels sont les trois pouvoirs concernés ?",["Le pouvoir exécutif, le pouvoir législatif et le pouvoir judiciaire","Le pouvoir présidentiel, ministériel et parlementaire","Le pouvoir national, régional et local","Le pouvoir civil, militaire et religieux"],0],
+["Qu'est-ce que le pouvoir exécutif ?",["Le pouvoir qui applique et met en œuvre les lois (président, gouvernement)","Le pouvoir qui vote les lois","Le pouvoir qui juge les infractions","Le pouvoir qui rédige seul la Constitution"],0],
+["Qu'est-ce que le pouvoir législatif ?",["Le pouvoir de voter et de proposer les lois, exercé par le Parlement","Le pouvoir de juger les litiges","Le pouvoir de nommer les préfets","Un pouvoir exercé exclusivement par le président"],0],
+["Qui sanctionne l'auteur d'un vol ?",["Le pouvoir judiciaire, via un tribunal","Le maire de la commune","Le préfet du département","Le Parlement"],0],
+["Qu'est-ce que l'État de droit ?",["Un État où gouvernants et gouvernés sont soumis au respect du droit et de la loi","Un État où seul le président fait la loi","Un État sans Constitution écrite","Un État où les décisions du gouvernement ne peuvent être contestées"],0],
+["Quel est le rôle du Conseil constitutionnel ?",["Vérifier que les lois sont conformes à la Constitution","Nommer le Premier ministre","Juger les crimes les plus graves","Voter le budget de l'État"],0],
+["Le président de la République commet un crime. Quelle proposition est correcte ?",["Il bénéficie d'une immunité pendant son mandat mais peut être jugé après, sauf procédure de destitution","Il ne peut jamais être jugé, même après son mandat","Il est automatiquement destitué par le Sénat","Seul le peuple peut le juger par référendum"],0],
+["Qui assure l'intérim du président de la République en cas de décès ou d'empêchement ?",["Le président du Sénat","Le Premier ministre","Le président de l'Assemblée nationale","Le président du Conseil constitutionnel"],0],
+["Quelle condition est nécessaire pour voter aux élections en France ?",["Être français, majeur, inscrit sur les listes électorales et jouir de ses droits civiques","Être propriétaire d'un bien immobilier","Avoir un casier judiciaire vierge, seule condition","Résider en France depuis 10 ans, sans autre condition"],0],
+["Le vote est-il obligatoire en France ?",["Non, voter est un droit, pas une obligation","Oui, sous peine d'amende","Oui, uniquement pour l'élection présidentielle","Oui, depuis 1958"],0],
+["Une personne peut-elle voter à la place d'une autre ?",["Non, c'est interdit et constitue une fraude électorale","Oui, avec une simple autorisation orale","Oui, si c'est un membre de la famille","Oui, en cas de procuration informelle"],0],
+["Qui est élu lors des élections municipales ?",["Les conseillers municipaux, qui élisent ensuite le maire","Le préfet du département","Les députés de la circonscription","Le président de la République"],0],
+["Quelle est la durée du mandat du conseil municipal et du maire ?",["6 ans","5 ans","4 ans","3 ans"],0],
+["Qui dirige la commune ?",["Le maire","Le préfet","Le président du conseil régional","Le sous-préfet"],0],
+["Qui est le préfet ?",["Le représentant de l'État dans le département, nommé par le gouvernement","Un élu local désigné par les habitants","Le chef du conseil régional","Le magistrat le plus haut placé du département"],0],
+["Quelle est l'organisation administrative de la France ?",["Communes, départements et régions","Uniquement des départements","Provinces et duchés","Cantons et districts fédéraux"],0],
+["Combien y a-t-il de régions en France métropolitaine ?",["13","22","27","18"],0],
+["Combien y a-t-il de départements en France ?",["101","95","13","36 000"],0],
+["Environ combien de communes existe-t-il en France ?",["Environ 35 000","Environ 5 000","Environ 500 000","Environ 101"],0],
+["Quel est le rôle du Défenseur des droits ?",["Veiller au respect des droits et libertés et lutter contre les discriminations","Nommer les ministres","Juger les affaires pénales graves","Rédiger les lois avant leur vote"],0],
+["Depuis quand l'euro est-il la monnaie utilisée en France ?",["Depuis 2002 pour les pièces et billets","Depuis 1958","Depuis 1992","Depuis 2015"],0],
+["Quel traité concerne la construction de l'Union européenne ?",["Le traité de Maastricht (1992)","Le traité de Versailles","Le traité de Rome, seul traité fondateur","Le traité de Schengen exclusivement"],0],
+["En quelle année le traité de Maastricht a-t-il été signé ?",["1992","1957","1951","2002"],0],
+["Quel État a quitté l'Union européenne en 2020 ?",["Le Royaume-Uni","La Norvège","La Suisse","L'Irlande"],0],
+["Quelle est la devise de l'Union européenne ?",["« Unie dans la diversité »","« Liberté, Égalité, Fraternité »","« Ensemble pour la paix »","« Unité et prospérité »"],0],
+["Quel est l'hymne de l'Union européenne ?",["L'Ode à la joie, de la 9e symphonie de Beethoven","La Marseillaise","L'Hymne à la joie de Mozart","Un hymne composé pour le traité de Rome"],0],
+["De quoi est composé le drapeau européen ?",["12 étoiles jaunes disposées en cercle sur fond bleu","27 étoiles représentant chaque État membre","Une étoile dorée unique sur fond bleu","Des bandes bleues et jaunes horizontales"],0],
+["Où est le siège du Parlement européen ?",["Strasbourg","Bruxelles","Francfort","Luxembourg"],0],
+],
+droits: [
+["Que contient la Constitution ?",["L'organisation des pouvoirs publics et les droits fondamentaux des citoyens","Uniquement le code pénal","La liste des impôts","Le programme du gouvernement en exercice"],0],
+["Quel est le texte fondateur établissant les droits et devoirs de chaque citoyen ?",["La Déclaration des droits de l'homme et du citoyen de 1789","Le Code civil de 1804","Le traité de Maastricht","La loi de 1905"],0],
+["Laquelle de ces citations est inscrite dans la Déclaration des droits de l'homme et du citoyen de 1789 ?",["« Les hommes naissent et demeurent libres et égaux en droits »","« Travail, famille, patrie »","« La loi, c'est la volonté du roi »","« L'union fait la force »"],0],
+["L'article 4 de la DDHC affirme que « la liberté consiste à pouvoir faire tout ce qui ne nuit pas à autrui ». Qu'est-ce que cela signifie ?",["Chacun est libre tant que l'exercice de sa liberté ne porte pas atteinte à celle des autres","Chacun peut agir sans aucune limite","Seul l'État définit ce qui est permis, sans référence à autrui","La liberté n'existe que pour les citoyens majeurs"],0],
+["Qu'est-ce que la liberté d'expression ?",["Le droit d'exprimer ses opinions, dans le respect de la loi","Le droit de dire n'importe quoi sans aucune conséquence","Un droit réservé aux journalistes","Le droit de contester les décisions de justice publiquement"],0],
+["Que garantit la liberté de la presse ?",["Le droit d'informer et d'être informé librement, dans le respect de la loi","Le droit pour l'État de contrôler tous les journaux","Le droit de publier sans jamais être responsable de ses écrits","Un monopole de l'information réservé aux médias publics"],0],
+["Que permet la liberté de circulation ?",["Se déplacer librement sur le territoire et choisir sa résidence","Voyager sans papiers dans n'importe quel pays","Se déplacer uniquement dans sa région de résidence","Circuler librement uniquement en horaires de jour"],0],
+["Que signifie être citoyen d'un État ?",["Avoir des droits et des devoirs vis-à-vis de cet État","Être uniquement soumis à des obligations, sans droits","Être propriétaire d'un bien sur le territoire","Parler la langue officielle de cet État"],0],
+["Que sont les droits fondamentaux ?",["Des droits essentiels garantis à toute personne (liberté, égalité, sûreté...)","Des droits réservés aux seuls fonctionnaires","Des avantages accordés sur décision du gouvernement en place","Des droits réservés aux citoyens de plus de 65 ans"],0],
+["Quel droit protège une personne contre une arrestation arbitraire ?",["Le droit à la sûreté","Le droit de grève","Le droit de vote","Le droit d'association"],0],
+["Au nom de quoi l'État peut-il justifier une restriction des droits ?",["L'ordre public, la sécurité ou les droits d'autrui","Les convictions personnelles d'un ministre","Les préférences de la majorité parlementaire uniquement","Aucun motif, les droits ne peuvent jamais être limités"],0],
+["À quoi sert le droit de grève ?",["À permettre aux salariés de cesser collectivement le travail pour défendre leurs intérêts professionnels","À obtenir automatiquement une augmentation de salaire","À licencier un employeur","À suspendre le paiement des impôts"],0],
+["Que signifie le droit de manifester ?",["Exprimer collectivement une opinion dans l'espace public, dans le cadre légal","Bloquer une ville sans aucune formalité","Un droit réservé aux syndicats uniquement","Le droit de manifester uniquement à Paris"],0],
+["La peine de mort en France est :",["Abolie depuis 1981","Toujours appliquée pour les crimes les plus graves","Abolie uniquement pour les mineurs","Suspendue mais réactivable par décret présidentiel"],0],
+["Concernant le droit de se marier, quelle proposition est correcte ?",["Le mariage est ouvert à deux personnes majeures et consentantes, de même sexe ou de sexe différent","Le mariage religieux seul suffit à être reconnu par l'État","On peut être marié à plusieurs personnes en même temps","Le mariage nécessite l'accord des deux familles"],0],
+["Est-il toujours possible de divorcer ?",["Oui, le divorce est un droit, prononcé par un juge selon plusieurs procédures","Non, le divorce est interdit en France","Oui, mais seulement après 10 ans de mariage","Non, sauf accord du maire"],0],
+["Est-ce légal d'être marié à plusieurs personnes en même temps ?",["Non, la polygamie est interdite en France","Oui, si les conjoints sont d'accord","Oui, dans certains départements d'outre-mer","Oui, à condition de vivre à l'étranger une partie de l'année"],0],
+["Le recours à l'avortement (IVG) est-il autorisé en France ?",["Oui, c'est un droit, la femme choisit librement","Non, il est totalement interdit","Oui, uniquement en cas de danger vital","Oui, mais seulement avec l'accord du conjoint"],0],
+["Qui peut demander à avorter ?",["Toute femme enceinte qui le souhaite, majeure ou mineure","Uniquement les femmes mariées","Uniquement les femmes de plus de 25 ans","Uniquement sur autorisation d'un juge"],0],
+["Que signifie PMA ?",["Procréation médicalement assistée","Protection maternelle assurée","Prestation médicale automatique","Programme médical d'accompagnement"],0],
+["Que signifie la dignité humaine ?",["Le respect dû à toute personne, interdisant les traitements inhumains ou dégradants","Le respect dû uniquement aux personnes âgées","Un principe qui ne concerne que les prisonniers","Un droit réservé aux citoyens français"],0],
+["Que prévoit la Charte de l'environnement ?",["Le droit de vivre dans un environnement équilibré et le devoir de le préserver","L'interdiction totale de construire de nouveaux bâtiments","La gratuité de l'eau pour tous","L'obligation de posséder un jardin"],0],
+["Pourquoi doit-on trier ses déchets ?",["Pour protéger l'environnement et permettre leur recyclage","Parce que c'est facultatif mais recommandé par les commerçants","Uniquement pour éviter une amende","Parce que la loi l'interdit ailleurs qu'en France"],0],
+["Jeter un mégot par terre est :",["Une infraction sanctionnée par une amende","Toléré tant que la rue est déjà sale","Autorisé en dehors des heures de bureau","Sans conséquence légale"],0],
+["Que doit faire une victime de violences ?",["Porter plainte auprès de la police ou de la gendarmerie et/ou se faire soigner","Se faire justice elle-même","Ne rien faire, la loi agira automatiquement","Attendre l'accord de l'agresseur pour porter plainte"],0],
+["Quelle est l'attitude à avoir lorsqu'on est témoin de violences ?",["Porter assistance ou alerter les secours","Ne pas intervenir pour éviter tout problème","Filmer la scène sans rien faire d'autre","Attendre l'arrivée de la police avant toute réaction, même en urgence vitale"],0],
+["Que doit-on faire face aux ordres de la police ou de la gendarmerie ?",["Les respecter, car ils s'imposent légalement à tous","On peut les contester physiquement si l'on n'est pas d'accord","On peut les ignorer si l'on est de nationalité étrangère","Ils ne s'appliquent qu'aux personnes ayant un casier judiciaire"],0],
+["Quel est le rôle de la police et de la gendarmerie ?",["Assurer la sécurité, faire respecter la loi et maintenir l'ordre public","Voter les lois relatives à la sécurité","Juger les infractions commises","Gérer les impôts locaux"],0],
+["Quelle est l'infraction la plus grave ?",["Le crime, jugé en cour d'assises","La contravention","Le délit","L'incivilité"],0],
+["Quelle proposition représente un exemple de délit ?",["Le vol ou la conduite sans permis","Un excès de vitesse mineur","Un meurtre","Le non-paiement d'une amende de stationnement"],0],
+["Quelle proposition représente un exemple de crime ?",["Un meurtre ou un viol","Un vol à l'étalage","Un excès de vitesse","Le non-respect d'un stop"],0],
+["Quelle obligation concerne toutes les personnes résidant en France, quelle que soit leur nationalité ?",["Respecter les lois françaises","Voter aux élections nationales","Payer une cotisation à un parti politique","Faire son service militaire"],0],
+["Qu'est-ce que la citoyenneté numérique ?",["L'usage responsable et respectueux des outils numériques, dans le respect de la loi","Le droit de publier n'importe quel contenu sans limite","Un statut réservé aux professionnels de l'informatique","L'obligation d'avoir un compte sur les réseaux sociaux"],0],
+["Qu'est-ce que le devoir de mémoire ?",["Transmettre le souvenir des événements historiques tragiques pour ne pas les oublier","Une obligation de connaître par cœur les dates de l'histoire de France","Un devoir réservé aux historiens professionnels","L'obligation de visiter un musée chaque année"],0],
+["Être juré d'assises est :",["Une obligation civique pour les citoyens tirés au sort, sauf motif légitime de dispense","Une démarche entièrement volontaire","Réservé aux personnes ayant fait des études de droit","Un métier rémunéré à plein temps"],0],
+["La vente d'alcool en France est interdite aux personnes de moins de :",["18 ans","16 ans","21 ans","15 ans"],0],
+["Le non-respect du code de la route est :",["Une contravention ou un délit selon la gravité de l'infraction","Toujours un simple avertissement oral","Sans conséquence si aucun accident n'a eu lieu","Une infraction civile mais jamais pénale"],0],
+["Pour obtenir une carte d'identité, il faut :",["Fournir un acte de naissance, une photo et un justificatif de domicile ; elle est gratuite","Payer une taxe annuelle","Avoir un casier judiciaire vierge","Être propriétaire de son logement"],0],
+["Est-il obligatoire de porter secours à une personne en danger ?",["Oui, la non-assistance à personne en danger est un délit","Non, c'est un choix personnel sans conséquence légale","Oui, mais uniquement pour les professionnels de santé","Non, sauf si l'on est témoin d'un accident de la route"],0],
+["Que risque une personne qui ne respecte pas la loi ?",["Des sanctions pénales selon la gravité de l'infraction","Rien, tant qu'elle n'est pas arrêtée","La perte automatique de la nationalité française","Uniquement un avertissement, quelle que soit l'infraction"],0],
+],
+histoire: [
+["En quelle année a débuté la Révolution française ?",["1789","1799","1804","1815"],0],
+["Quel roi de France a été guillotiné pendant la Révolution française ?",["Louis XVI","Louis XIV","Louis XV","Louis XVIII"],0],
+["Quel était le surnom de Louis XIV ?",["Le Roi Soleil","Le Roi guerrier","Le Bien-Aimé","Le Grand Monarque"],0],
+["En quelle année Napoléon Ier est-il devenu empereur ?",["1804","1789","1815","1799"],0],
+["Dans quelle ville les rois de France étaient-ils traditionnellement sacrés ?",["Reims","Paris","Versailles","Lyon"],0],
+["Qui a rendu l'école gratuite, laïque et obligatoire ?",["Jules Ferry, sous la IIIe République","Napoléon Ier","Charles de Gaulle","Louis XIV"],0],
+["Depuis quelle année l'école publique est-elle gratuite ?",["1881","1905","1958","1946"],0],
+["Quand a eu lieu la Première Guerre mondiale ?",["1914-1918","1939-1945","1870-1871","1904-1908"],0],
+["Quand a eu lieu la Seconde Guerre mondiale ?",["1939-1945","1914-1918","1945-1950","1936-1940"],0],
+["De quand date l'appel à la résistance du général de Gaulle ?",["Le 18 juin 1940","Le 6 juin 1944","Le 8 mai 1945","Le 11 novembre 1918"],0],
+["Où a eu lieu le débarquement allié de 1944 qui a permis la libération de la France ?",["En Normandie","En Provence uniquement","En Bretagne","Sur la Côte d'Azur uniquement"],0],
+["À quelle date la ville de Paris a-t-elle été libérée en 1944 ?",["Le 25 août 1944","Le 6 juin 1944","Le 8 mai 1945","Le 11 novembre 1944"],0],
+["Pourquoi la Shoah est-elle étudiée à l'école ?",["Pour transmettre la mémoire de l'extermination des Juifs d'Europe et prévenir sa répétition","Parce que c'est un épisode de l'histoire coloniale française","Parce qu'elle a eu lieu uniquement en France","Parce que c'est un sujet obligatoire depuis la Révolution"],0],
+["Qu'est-ce que la Shoah ?",["L'extermination des Juifs d'Europe par le régime nazi pendant la Seconde Guerre mondiale","Le nom donné à la Résistance française","Une bataille de la Première Guerre mondiale","Le nom donné à la libération de Paris"],0],
+["En 1944, qu'est-ce qui a changé pour les femmes en France ?",["Elles ont obtenu le droit de vote","Elles ont obtenu le droit de travailler pour la première fois","Elles sont devenues éligibles à la présidence","L'école est devenue mixte pour la première fois"],0],
+["Quelle organisation internationale a été créée en 1945 après la Seconde Guerre mondiale ?",["L'Organisation des Nations unies (ONU)","L'Union européenne","L'OTAN","Le Conseil de l'Europe"],0],
+["Que célèbre-t-on le 8 mai ?",["La victoire des Alliés et la capitulation de l'Allemagne nazie en 1945","La fin de la Première Guerre mondiale","La prise de la Bastille","La libération de Paris"],0],
+["Le 11 novembre est un jour férié. À quoi correspond cette date ?",["L'armistice de 1918, fin de la Première Guerre mondiale","L'armistice de 1945","La fête du Travail","L'appel du général de Gaulle"],0],
+["Sous quel président a été abolie la peine de mort en France ?",["François Mitterrand, en 1981","Charles de Gaulle","Jacques Chirac","Valéry Giscard d'Estaing"],0],
+["En quelle année l'esclavage a-t-il été aboli définitivement en France ?",["1848","1789","1905","1815"],0],
+["Depuis quand les Français élisent-ils le président au suffrage universel direct ?",["Depuis 1965","Depuis 1958","Depuis 1981","Depuis 1789"],0],
+["Pourquoi l'année 1958 est-elle importante pour la France ?",["C'est la fondation de la Ve République par Charles de Gaulle","C'est la fin de la Seconde Guerre mondiale","C'est la création de l'euro","C'est l'abolition de l'esclavage"],0],
+["Qui a fondé la Ve République ?",["Charles de Gaulle","François Mitterrand","Napoléon III","Jules Ferry"],0],
+["Qui a été le premier président élu sous la Ve République ?",["Charles de Gaulle","Georges Pompidou","François Mitterrand","Vincent Auriol"],0],
+["Quelle est la première étape de la construction européenne en 1951 ?",["La création de la Communauté Européenne du Charbon et de l'Acier (CECA)","La signature du traité de Maastricht","La création de l'euro","L'adhésion du Royaume-Uni"],0],
+["Quel pays a été colonisé par la France ?",["L'Algérie, entre autres","L'Espagne","L'Italie","La Belgique"],0],
+["Quel continent a été le plus concerné par la décolonisation française après la Seconde Guerre mondiale ?",["L'Afrique","L'Amérique du Sud","L'Océanie","L'Europe de l'Est"],0],
+["En quelle année l'euro est-il devenu la monnaie officielle utilisée quotidiennement en France ?",["2002","1992","1958","2010"],0],
+["Simone Veil est une figure importante de l'histoire française. Elle a notamment :",["Fait adopter la loi légalisant l'IVG en 1975 et présidé le Parlement européen","Aboli la peine de mort","Fondé la Ve République","Écrit la Déclaration des droits de l'homme"],0],
+["Qui était Simone de Beauvoir ?",["Une écrivaine et philosophe féministe, autrice du « Deuxième Sexe »","Une résistante fusillée en 1944","La première femme présidente de la République","Une peintre impressionniste"],0],
+["Qui était Marie Curie ?",["Une physicienne et chimiste, deux fois prix Nobel","Une écrivaine du XIXe siècle","La première femme ministre de France","Une résistante pendant la Seconde Guerre mondiale"],0],
+["Qui a peint « La Liberté guidant le peuple » ?",["Eugène Delacroix","Claude Monet","Auguste Renoir","Paul Cézanne"],0],
+["Quel peintre a peint les Nymphéas ?",["Claude Monet","Eugène Delacroix","Auguste Rodin","Paul Cézanne"],0],
+["Dans quel musée parisien est exposée la Joconde ?",["Le Louvre","Le musée d'Orsay","Le Centre Pompidou","Le musée Rodin"],0],
+["Quel château célèbre près de Paris symbolise le pouvoir royal de Louis XIV ?",["Le château de Versailles","Le château de Chambord","Le Louvre","Le château de Fontainebleau"],0],
+["À quelle occasion a été construite la Tour Eiffel ?",["L'Exposition universelle de 1889","Le sacre de Napoléon","La libération de Paris","Le traité de Versailles"],0],
+["Quel écrivain français est l'auteur des « Misérables » et de « Notre-Dame de Paris » ?",["Victor Hugo","Albert Camus","Molière","Charles Baudelaire"],0],
+["Qui était Molière ?",["Un dramaturge et comédien français du XVIIe siècle","Un peintre impressionniste","Un roi de France","Un résistant de la Seconde Guerre mondiale"],0],
+["Quelle mer se situe entre la France et l'Angleterre ?",["La Manche","La mer Méditerranée","La mer du Nord","L'océan Atlantique"],0],
+["Quel fleuve traverse Paris ?",["La Seine","La Loire","Le Rhône","La Garonne"],0],
+],
+societe: [
+["Où faut-il déclarer la naissance d'un enfant ?",["À la mairie du lieu de naissance","À la préfecture","Au commissariat de police","À la caisse d'allocations familiales"],0],
+["Quel mariage est reconnu légalement par l'État ?",["Le mariage civil célébré en mairie","Le mariage uniquement religieux","Le mariage coutumier célébré en famille","Toute union déclarée sur l'honneur"],0],
+["En cas de divorce, qui exerce l'autorité parentale ?",["En principe, les deux parents conjointement, sauf décision contraire du juge","Automatiquement la mère","Automatiquement le père","Le juge exerce l'autorité parentale à la place des parents"],0],
+["Quelle aide permet aux personnes en difficulté financière d'avoir un avocat ?",["L'aide juridictionnelle","Le RSA","La carte Vitale","L'allocation logement"],0],
+["Quelle est l'une des conditions pour passer l'examen du permis de conduire ?",["Avoir suivi une formation (code et conduite) et avoir l'âge minimum requis","Être propriétaire d'un véhicule","Avoir la nationalité française","Avoir un CDI"],0],
+["Un bail locatif est valide s'il est :",["Écrit et signé par le locataire et le propriétaire","Uniquement verbal, sur accord de confiance","Validé par la mairie","Rédigé exclusivement par un notaire"],0],
+["Où peut-on déposer un lave-vaisselle cassé ?",["En déchèterie ou via une collecte d'encombrants organisée","Sur le trottoir, à n'importe quel moment","Dans une poubelle classique","N'importe où en dehors de son domicile"],0],
+["Quel numéro d'urgence permet d'appeler la police ?",["Le 17","Le 15","Le 18","Le 112 uniquement"],0],
+["Quel numéro d'urgence permet d'appeler le SAMU ?",["Le 15","Le 17","Le 18","Le 119"],0],
+["Quel numéro d'urgence permet d'appeler les pompiers ?",["Le 18","Le 15","Le 17","Le 112 exclusivement"],0],
+["Concernant l'accès aux soins, quelle proposition est correcte ?",["Toute personne résidant en France a accès aux soins, y compris via des dispositifs pour les personnes en situation précaire","Seuls les Français peuvent se faire soigner","Les soins ne sont accessibles qu'en cas d'urgence vitale","L'accès aux soins dépend du niveau de revenu uniquement"],0],
+["À qui est accessible la contraception ?",["À toute personne, y compris aux mineures, de façon libre et confidentielle","Uniquement aux personnes mariées","Uniquement sur autorisation parentale, quel que soit l'âge","Uniquement aux personnes de plus de 25 ans"],0],
+["Qu'est-ce que le principe de confidentialité dans le domaine de la santé ?",["Le secret médical, qui protège les informations de santé d'une personne","L'obligation de partager son dossier médical avec son employeur","Un principe qui ne s'applique qu'aux hôpitaux publics","L'obligation de déclarer sa maladie à la mairie"],0],
+["L'inscription à l'Assurance maladie est :",["Obligatoire pour toute personne résidant en France","Facultative","Réservée aux salariés en CDI","Payante et optionnelle"],0],
+["À quoi sert la carte Vitale ?",["Elle atteste des droits à l'Assurance maladie et facilite le remboursement des soins","Elle sert de carte d'identité","Elle permet de voter par voie électronique","Elle remplace le permis de conduire"],0],
+["À quoi sert une mutuelle santé ?",["À compléter le remboursement des soins effectué par la Sécurité sociale","À remplacer entièrement la Sécurité sociale","À payer les impôts","À obtenir un titre de séjour"],0],
+["Qui peut demander un congé parental d'éducation ?",["Le père ou la mère salarié(e), après une naissance ou une adoption","Uniquement la mère","Uniquement les fonctionnaires","Uniquement les familles nombreuses"],0],
+["Quelles sont les affaires traitées par le conseil de prud'hommes ?",["Les litiges individuels entre un salarié et son employeur","Les crimes commis dans une entreprise","Les litiges entre particuliers concernant un logement","Les infractions au code de la route"],0],
+["Travailler sans être déclaré est :",["Illégal, cela constitue du travail dissimulé","Autorisé si le contrat est verbal","Toléré pour les emplois de courte durée","Sans conséquence pour l'employeur"],0],
+["Quelle est la mission de France Travail ?",["Aider les personnes à rechercher un emploi et gérer l'indemnisation chômage","Fixer le salaire minimum","Délivrer les titres de séjour","Gérer les retraites"],0],
+["Dans une entreprise, le droit syndical permet :",["D'adhérer ou de créer un syndicat pour défendre ses intérêts professionnels","D'obtenir automatiquement une augmentation de salaire","De licencier un collègue","De refuser de payer ses impôts"],0],
+["Dans une entreprise, le droit de grève autorise :",["Les salariés à cesser collectivement le travail pour défendre leurs revendications","Le licenciement immédiat de l'employeur","La fermeture définitive de l'entreprise","Le non-paiement des salaires sans limite de durée"],0],
+["Quelles sont les conditions pour toucher les allocations chômage ?",["Avoir suffisamment travaillé, être inscrit comme demandeur d'emploi et rechercher activement un emploi","Avoir plus de 50 ans uniquement","Ne jamais avoir travaillé","Être propriétaire de son logement"],0],
+["Qu'est-ce que l'école maternelle ?",["L'école qui accueille les enfants dès 3 ans, où l'instruction est désormais obligatoire","Une école réservée aux enfants en situation de handicap","Une garderie facultative sans lien avec l'Éducation nationale","Une école payante uniquement"],0],
+["Comment s'appelle le diplôme passé par les élèves à la fin du collège ?",["Le brevet des collèges (DNB)","Le baccalauréat","Le certificat d'études","Le CAP"],0],
+["Comment s'appelle le diplôme obtenu à la fin du lycée ?",["Le baccalauréat","Le brevet","Le certificat de fin d'études secondaires","Le diplôme national du lycée"],0],
+["Les parents d'élèves ont le droit de :",["Participer à la vie de l'école via les conseils d'école et élire des représentants","Imposer leurs convictions religieuses dans les programmes scolaires","Choisir librement les enseignants de leur enfant","Interdire certains enseignements pour motif personnel"],0],
+["À quel âge commence l'instruction obligatoire des enfants en France ?",["3 ans","6 ans","5 ans","4 ans"],0],
+["Jusqu'à quel âge l'instruction est-elle obligatoire ?",["16 ans","18 ans","14 ans","15 ans"],0],
+["À l'école, il est interdit aux parents de :",["Imposer leurs convictions religieuses ou perturber le fonctionnement de l'école","Participer aux réunions parents-professeurs","Voter aux élections de représentants de parents d'élèves","Consulter le carnet de correspondance de leur enfant"],0],
+["Quel motif d'absence est accepté par l'école ?",["La maladie ou un événement familial grave, justifié","Un rendez-vous non urgent sans justificatif","Le simple souhait de l'élève","Un motif religieux non reconnu par la loi"],0],
+["Des parents ne respectent pas l'obligation d'instruction pour leurs enfants. Quelle sanction maximale risquent-ils ?",["Des sanctions pénales, dont une amende","La perte de la nationalité française","L'expulsion du territoire","Aucune sanction n'est prévue"],0],
+["À l'école, un enfant en situation de handicap :",["A droit à une scolarisation en milieu ordinaire, avec des aménagements si nécessaire","Ne peut pas être scolarisé en milieu ordinaire","Doit obligatoirement être scolarisé à domicile","N'a accès qu'à des établissements spécialisés payants"],0],
+["Depuis le 1er juillet 2021, quelle est la durée du congé paternité ?",["25 jours (28 en cas de naissances multiples)","11 jours","3 jours","60 jours"],0],
+["Est-ce possible de punir physiquement ses enfants ?",["Non, les violences éducatives ordinaires sont interdites par la loi depuis 2019","Oui, dans le cadre de l'autorité parentale","Oui, tant que cela reste léger","Oui, uniquement avant l'âge de 6 ans"],0],
+["Qui peut manger à la cantine scolaire ?",["Tous les élèves inscrits, sans discrimination","Uniquement les élèves boursiers","Uniquement les élèves de primaire","Uniquement sur autorisation du maire"],0],
+["Une femme peut-elle créer son entreprise en France ?",["Oui, sans restriction liée au sexe","Non, sauf autorisation spéciale","Oui, uniquement dans le secteur du commerce","Non, ce droit est réservé aux hommes"],0],
+["Une personne étrangère en situation régulière peut-elle créer son entreprise en France ?",["Oui, sous certaines conditions liées à son titre de séjour","Non, c'est interdit aux étrangers","Oui, mais uniquement les ressortissants européens","Non, sauf naturalisation préalable"],0],
+["Quelle est la durée légale du temps de travail par semaine en France ?",["35 heures","40 heures","39 heures","32 heures"],0],
+["Qu'est-ce que le SMIC ?",["Le salaire minimum interprofessionnel de croissance","Une prime versée aux chômeurs","Un impôt sur le revenu","Une cotisation retraite obligatoire"],0],
+],
+};
+
+/* =========================================================
+   BANQUE "HARDCORE" — 120 questions supplémentaires (24 par thème)
+   Séances 6, 7, 8 — niveau technique et pointu
+   ========================================================= */
+const HARDCORE_BANK = {
+principes: [
+["Quel article de la Déclaration des droits de l'homme et du citoyen énonce que « la loi est l'expression de la volonté générale » ?",["L'article 6","L'article 1er","L'article 4","L'article 17"],0],
+["Quelle révision constitutionnelle a consacré le principe de parité femmes-hommes en politique ?",["La révision constitutionnelle du 8 juillet 1999","La loi de 1905","La révision de 2008","La loi Veil de 1975"],0],
+["Quelle loi a ouvert le mariage aux couples de même sexe en France ?",["La loi du 17 mai 2013, dite loi Taubira","La loi du 15 novembre 1999 sur le PACS","Le Code civil de 1804","La révision constitutionnelle de 2008"],0],
+["Quel ensemble de textes constitue le « bloc de constitutionnalité » en droit français ?",["La Constitution de 1958, le préambule de 1946, la DDHC de 1789 et la Charte de l'environnement de 2004","Uniquement la Constitution de 1958","Le Code civil et le Code pénal","Les traités européens uniquement"],0],
+["En quelle année le Conseil constitutionnel a-t-il rendu sa décision fondatrice reconnaissant valeur constitutionnelle au préambule de 1946 ?",["1971","1958","1981","1992"],0],
+["Quelle réforme de 2008 a créé la question prioritaire de constitutionnalité (QPC) ?",["La révision constitutionnelle du 23 juillet 2008","La loi de 1905","La révision de 1999 sur la parité","Le traité de Maastricht"],0],
+["Que permet la question prioritaire de constitutionnalité (QPC) ?",["À un justiciable de contester la conformité d'une loi à la Constitution à l'occasion d'un procès","De réviser directement la Constitution sans passer par le Parlement","De destituer le président de la République","D'annuler un traité international"],0],
+["Quelle loi interdit la dissimulation du visage dans l'espace public ?",["La loi du 11 octobre 2010","La loi du 15 mars 2004","La loi de 1905","La loi Taubira de 2013"],0],
+["Quelle loi interdit le port de signes religieux ostensibles à l'école publique ?",["La loi du 15 mars 2004","La loi du 9 décembre 1905","La loi du 11 octobre 2010","La loi Debré de 1959"],0],
+["Quel adage juridique signifie que la loi s'impose à tous, même à ceux qui l'ignorent ?",["« Nul n'est censé ignorer la loi »","« Pacta sunt servanda »","« Ubi lex non distinguit »","« Nullum crimen sine lege »"],0],
+["Quel principe empêche une loi de s'appliquer à des faits commis avant son entrée en vigueur, sauf exception favorable ?",["Le principe de non-rétroactivité de la loi","Le principe de subsidiarité","Le principe de proportionnalité","Le principe de spécialité"],0],
+["Quel texte de 1789 proclame dès son article 1er que « les hommes naissent et demeurent libres et égaux en droits » ?",["La Déclaration des droits de l'homme et du citoyen","Le Code civil de 1804","La Constitution de l'an I","Le préambule de la Constitution de 1946"],0],
+["Quel philosophe des Lumières a théorisé la séparation des pouvoirs dans « De l'esprit des lois » ?",["Montesquieu","Voltaire","Rousseau","Diderot"],0],
+["Quelle loi a créé le pacte civil de solidarité (PACS) ?",["La loi du 15 novembre 1999","La loi du 17 mai 2013","Le Code civil de 1804","La loi de 1905"],0],
+["Quel principe garantit qu'une même personne ne peut être jugée deux fois pour les mêmes faits ?",["Le principe « non bis in idem »","Le principe du contradictoire","Le principe de légalité des délits et des peines","La présomption d'innocence"],0],
+["Quel principe pénal impose qu'une infraction et sa peine doivent être définies par la loi avant les faits ?",["Le principe de légalité des délits et des peines","Le principe de proportionnalité","Le principe du contradictoire","Le principe de non-rétroactivité"],0],
+["Quelle est la portée juridique de la Charte de l'environnement de 2004 ?",["Elle a valeur constitutionnelle, au même titre que la DDHC","Elle n'a qu'une valeur symbolique, sans portée juridique","Elle s'applique uniquement aux entreprises","Elle a valeur réglementaire, inférieure à la loi"],0],
+["Quel philosophe est à l'origine de la théorie du contrat social, qui a influencé la DDHC ?",["Jean-Jacques Rousseau","Blaise Pascal","Auguste Comte","Michel de Montaigne"],0],
+["Que désignent les « principes fondamentaux reconnus par les lois de la République » (PFRLR) utilisés par le Conseil constitutionnel ?",["Des principes non écrits, dégagés par le juge constitutionnel à partir de la tradition républicaine","Les seuls articles de la Constitution de 1958","Les traités internationaux ratifiés par la France","Les décrets pris par le président de la République"],0],
+["Quel est le statut de la loi de 1905 dans la hiérarchie des normes ?",["C'est une loi ordinaire, non de valeur constitutionnelle en tant que telle","C'est un article de la Constitution de 1958","C'est un traité international","C'est un règlement européen"],0],
+["Comment se nomme le contrôle exercé par le Conseil constitutionnel sur une loi avant sa promulgation ?",["Le contrôle de constitutionnalité a priori","La question prioritaire de constitutionnalité","Le contrôle de conventionnalité","Le référé-liberté"],0],
+["Quelles autorités peuvent saisir le Conseil constitutionnel avant la promulgation d'une loi ?",["60 députés ou 60 sénateurs, entre autres autorités habilitées","Uniquement le président de la République","Uniquement un citoyen via une pétition","Uniquement le Premier ministre"],0],
+["Quel principe protège une personne contre des atteintes disproportionnées de l'État à ses droits fondamentaux ?",["Le principe de proportionnalité","Le principe de spécialité","Le principe de subsidiarité","Le principe d'opportunité des poursuites"],0],
+["Quel philosophe des Lumières a codirigé la rédaction de l'Encyclopédie avec d'Alembert ?",["Denis Diderot","Voltaire","Rousseau","Montesquieu"],0],
+],
+institutions: [
+["Quel article de la Constitution permet au président de la République de dissoudre l'Assemblée nationale ?",["L'article 12","L'article 16","L'article 49.3","L'article 5"],0],
+["Quel article confère au président des pouvoirs exceptionnels en cas de crise grave menaçant les institutions ?",["L'article 16","L'article 12","L'article 49.3","L'article 89"],0],
+["Que permet l'article 49.3 de la Constitution ?",["Au gouvernement d'engager sa responsabilité pour faire adopter un texte sans vote, sauf motion de censure","Au président de dissoudre l'Assemblée nationale","Au Sénat de bloquer indéfiniment une loi","Au Conseil constitutionnel d'annuler une loi"],0],
+["Quelle est la conséquence de l'adoption d'une motion de censure par l'Assemblée nationale ?",["Le gouvernement doit démissionner","Le président doit démissionner","L'Assemblée est automatiquement dissoute","Le Sénat prend le pouvoir exécutif"],0],
+["Combien de signatures (au minimum) sont nécessaires à l'Assemblée nationale pour déposer une motion de censure ?",["Un dixième des membres de l'Assemblée nationale","La majorité absolue directement","Un tiers du Sénat","Un seul député suffit"],0],
+["Quel est le rôle du Conseil d'État, distinct du Conseil constitutionnel ?",["Conseiller juridique du gouvernement et juge suprême de l'ordre administratif","Voter les lois à la place du Parlement","Élire le président de la République","Gérer les finances publiques"],0],
+["Quelle est la plus haute juridiction de l'ordre judiciaire (affaires civiles et pénales) en France ?",["La Cour de cassation","Le Conseil d'État","Le Conseil constitutionnel","La Cour des comptes"],0],
+["Quelle institution contrôle les comptes publics et l'emploi des fonds publics ?",["La Cour des comptes","Le Conseil d'État","La Cour de cassation","L'Inspection générale des finances"],0],
+["Quel organe juge les membres du gouvernement pour des crimes ou délits commis dans l'exercice de leurs fonctions ?",["La Cour de justice de la République","La Cour de cassation","Le Conseil constitutionnel","La Haute Cour"],0],
+["Quelle instance peut destituer le président de la République en cas de manquement manifestement incompatible avec ses fonctions ?",["La Haute Cour, réunissant le Parlement","Le Conseil constitutionnel seul","La Cour de justice de la République","Le Conseil d'État"],0],
+["Quel scrutin est utilisé pour élire les députés à l'Assemblée nationale ?",["Le scrutin uninominal majoritaire à deux tours","Le scrutin proportionnel intégral","Le scrutin uninominal à un tour","Le scrutin de liste bloquée"],0],
+["Quel scrutin est utilisé pour l'élection du président de la République ?",["Le scrutin uninominal majoritaire à deux tours","Le scrutin proportionnel","Le scrutin indirect par les grands électeurs","Le scrutin de liste"],0],
+["Quelle est la durée du mandat des conseillers régionaux ?",["6 ans","5 ans","4 ans","3 ans"],0],
+["Quelle grande région a été formée en 2016 par la fusion de plusieurs anciennes régions, dont Rhône-Alpes et Auvergne ?",["Auvergne-Rhône-Alpes","L'Île-de-France","La Corse","La Bretagne"],0],
+["Quel référendum de 2000 a instauré le quinquennat présidentiel, réduisant le mandat de 7 à 5 ans ?",["Le référendum du 24 septembre 2000","Le référendum de 1958","Le référendum de 1962 sur l'élection au suffrage universel direct","Le référendum de Maastricht en 1992"],0],
+["Que désigne le terme « cohabitation » en droit constitutionnel français ?",["Une situation où le président et la majorité parlementaire sont de bords politiques opposés","Le partage du pouvoir entre l'Assemblée et le Sénat","La coexistence de plusieurs partis au sein du gouvernement","Le partage du territoire entre régions"],0],
+["Quelle institution européenne partage le pouvoir législatif avec le Parlement européen ?",["Le Conseil de l'Union européenne (Conseil des ministres)","La Commission européenne seule","La Cour de justice de l'Union européenne","Le Conseil européen uniquement"],0],
+["Quelle institution européenne, composée des chefs d'État et de gouvernement, définit les orientations politiques générales de l'UE ?",["Le Conseil européen","Le Conseil de l'Union européenne","La Commission européenne","Le Parlement européen"],0],
+["Quelle institution propose les textes législatifs européens avant leur adoption par le Parlement et le Conseil ?",["La Commission européenne","La Cour de justice de l'Union européenne","La Banque centrale européenne","Le Conseil européen"],0],
+["Quelle juridiction veille au respect du droit de l'Union européenne par les États membres ?",["La Cour de justice de l'Union européenne (CJUE), à Luxembourg","La Cour européenne des droits de l'homme, à Strasbourg","Le Conseil d'État français","La Cour de cassation"],0],
+["Quelle institution, distincte de l'UE, siège à Strasbourg et regroupe 46 États pour protéger les droits de l'homme en Europe ?",["Le Conseil de l'Europe","Le Conseil européen","Le Parlement européen","La Commission européenne"],0],
+["Quelle cour, liée au Conseil de l'Europe et non à l'UE, peut être saisie par un particulier estimant ses droits violés par un État ?",["La Cour européenne des droits de l'homme (CEDH)","La Cour de justice de l'Union européenne","La Cour internationale de justice","La Cour pénale internationale"],0],
+["Quels accords ont supprimé les contrôles aux frontières intérieures entre plusieurs pays européens ?",["Les accords de Schengen (1985)","Le traité de Maastricht","Le traité de Rome","Le traité de Lisbonne"],0],
+["Quel traité, entré en vigueur en 2009, a réformé le fonctionnement institutionnel de l'UE après l'échec du projet de Constitution européenne ?",["Le traité de Lisbonne","Le traité de Maastricht","Le traité de Rome","Le traité d'Amsterdam"],0],
+],
+droits: [
+["Quel principe empêche de condamner une personne pour un acte non prévu comme infraction au moment des faits ?",["Le principe de légalité des délits et des peines","Le principe du contradictoire","Le principe de proportionnalité","Le principe d'opportunité des poursuites"],0],
+["Quel principe impose que toute personne poursuivie soit considérée innocente jusqu'à preuve du contraire ?",["La présomption d'innocence","Le principe du contradictoire","Le principe de légalité","La prescription"],0],
+["Que signifie la « prescription » en matière pénale ?",["L'extinction de l'action publique après un certain délai suivant l'infraction","L'obligation pour un médecin de prescrire un traitement","Une peine complémentaire prononcée par un juge","Le délai pour faire appel d'une décision"],0],
+["Quel est le délai de prescription de droit commun pour un crime en France ?",["20 ans","3 ans","1 an","Imprescriptible dans tous les cas"],0],
+["Quels crimes sont imprescriptibles en droit français ?",["Les crimes contre l'humanité","Tous les vols","Tous les délits routiers","Les contraventions"],0],
+["Quel droit permet à une personne gardée à vue d'être assistée par un avocat dès le début de la mesure ?",["Le droit à l'assistance d'un avocat en garde à vue","Le droit de grève","Le droit de vote","Le droit d'association"],0],
+["Quelle est la durée maximale de la garde à vue de droit commun, hors régime dérogatoire ?",["24 heures, renouvelable une fois sur autorisation du procureur (48h maximum)","72 heures d'office","7 jours","Illimitée sur décision du policier"],0],
+["Quelle autorité judiciaire contrôle la garde à vue et peut en ordonner la prolongation ?",["Le procureur de la République","Le maire","Le préfet","Le Défenseur des droits"],0],
+["Quel principe garantit à chaque partie d'un procès de connaître et discuter les arguments et preuves de la partie adverse ?",["Le principe du contradictoire","La présomption d'innocence","Le principe de légalité","Le principe de proportionnalité"],0],
+["Quelle instance peut être saisie par un justiciable estimant avoir subi une discrimination de la part d'une administration ?",["Le Défenseur des droits","La Cour des comptes","Le Conseil d'État uniquement","Le préfet uniquement"],0],
+["Que signifie « l'ordre public », motif fréquemment invoqué pour limiter une liberté ?",["L'ensemble des règles nécessaires au bon fonctionnement de la société (sécurité, salubrité, tranquillité)","Les décisions prises par le président uniquement","Un synonyme de « police nationale »","Un texte de loi unique et précis"],0],
+["Quel texte protège les droits de l'enfant au niveau international, ratifié par la France en 1990 ?",["La Convention internationale des droits de l'enfant (CIDE)","La Déclaration universelle des droits de l'homme","La Charte de l'environnement","La Convention de Genève"],0],
+["Quelle convention de 1948 énonce les droits fondamentaux reconnus à tout être humain ?",["La Déclaration universelle des droits de l'homme","La Déclaration des droits de l'homme et du citoyen de 1789","La Convention européenne des droits de l'homme","La Charte des Nations unies"],0],
+["Quelle convention, adoptée dans le cadre du Conseil de l'Europe, permet à un particulier de saisir la CEDH contre un État ?",["La Convention européenne de sauvegarde des droits de l'homme (1950)","La Convention de Genève","Le traité de Maastricht","La Charte des droits fondamentaux de l'UE"],0],
+["Que désigne la « voie de fait » en droit administratif ?",["Une atteinte grave et manifestement illégale portée par l'administration à une liberté fondamentale ou à la propriété","Une infraction routière","Un vol avec violence","Une clause abusive dans un contrat"],0],
+["Quelle sanction, distincte d'une sanction pénale, peut être prononcée par un ordre professionnel (avocats, médecins...) ?",["La radiation ou la suspension d'exercice","La peine de prison","L'amende pénale","Le retrait de la nationalité"],0],
+["Quel principe protège un salarié licencié sans motif réel et sérieux, lui permettant de contester son licenciement ?",["Le principe de la cause réelle et sérieuse du licenciement","Le principe de l'employeur unique","La présomption d'innocence","Le principe de non-rétroactivité"],0],
+["Que garantit la liberté syndicale, reconnue par le préambule de la Constitution de 1946 ?",["Le droit pour tout travailleur d'adhérer au syndicat de son choix","L'obligation d'adhérer à un syndicat pour travailler","Un droit réservé aux fonctionnaires","Un droit réservé aux dirigeants d'entreprise"],0],
+["Quel texte protège le droit de propriété comme un droit « inviolable et sacré » ?",["L'article 17 de la Déclaration des droits de l'homme et du citoyen de 1789","Le Code de commerce","La loi de 1905","La Charte de l'environnement"],0],
+["Quelle notion permet à l'État d'exproprier un bien privé pour cause d'intérêt général, moyennant indemnisation ?",["L'expropriation pour cause d'utilité publique","La réquisition militaire uniquement","La confiscation pénale","La nationalisation automatique"],0],
+["Quel principe encadre l'action de la police, lui imposant de n'utiliser la force que si elle est nécessaire et adaptée ?",["Le principe de proportionnalité de l'usage de la force","Le principe de légalité des peines","Le principe du contradictoire","La présomption d'innocence"],0],
+["Quelle infraction sanctionne le fait de propager par écrit de fausses informations nuisant à la réputation d'une personne ?",["La diffamation","L'injure","Le harcèlement moral","L'usurpation d'identité"],0],
+["Quelle infraction, distincte de la diffamation, sanctionne une expression outrageante sans imputation d'un fait précis ?",["L'injure","La diffamation","La calomnie","Le dénigrement"],0],
+["Quel principe interdit de poursuivre deux fois une même personne pour des faits déjà jugés définitivement ?",["Le principe « non bis in idem »","Le principe de légalité","La présomption d'innocence","Le principe du contradictoire"],0],
+],
+histoire: [
+["Qui a peint « Le Radeau de la Méduse » ?",["Théodore Géricault","Eugène Delacroix","Claude Monet","Auguste Renoir"],0],
+["Qui a écrit le « Discours de la méthode » ?",["René Descartes","Blaise Pascal","Voltaire","Jean-Jacques Rousseau"],0],
+["Quel tableau, peint par Claude Monet en 1872, a donné son nom au mouvement impressionniste ?",["« Impression, soleil levant »","« Les Nymphéas »","« Le Déjeuner sur l'herbe »","« La Gare Saint-Lazare »"],0],
+["Qui a sculpté « Le Penseur » ?",["Auguste Rodin","Claude Monet","Eugène Delacroix","Camille Claudel"],0],
+["Qui a écrit « Du contrat social » ?",["Jean-Jacques Rousseau","Voltaire","Montesquieu","Denis Diderot"],0],
+["Qui a composé le « Boléro » ?",["Maurice Ravel","Claude Debussy","Hector Berlioz","Georges Bizet"],0],
+["Quel philosophe des Lumières a écrit « De l'esprit des lois », théorisant la séparation des pouvoirs ?",["Montesquieu","Voltaire","Rousseau","Diderot"],0],
+["Qui a écrit « Candide » ?",["Voltaire","Jean-Jacques Rousseau","Montesquieu","Denis Diderot"],0],
+["Qui a peint « Le Déjeuner sur l'herbe » ?",["Édouard Manet","Claude Monet","Auguste Renoir","Paul Cézanne"],0],
+["Qui a écrit « À la recherche du temps perdu » ?",["Marcel Proust","Victor Hugo","Albert Camus","Stendhal"],0],
+["Quel peintre français, ami de Picasso, est considéré comme le co-fondateur du cubisme ?",["Georges Braque","Paul Cézanne","Henri Matisse","Auguste Renoir"],0],
+["Quel est le recueil de poèmes le plus célèbre de Charles Baudelaire ?",["« Les Fleurs du mal »","« Les Contemplations »","« Les Rayons et les Ombres »","« Alcools »"],0],
+["Quel compositeur français a écrit « Clair de lune » (issu de la Suite bergamasque) ?",["Claude Debussy","Maurice Ravel","Hector Berlioz","Camille Saint-Saëns"],0],
+["Qui a écrit « Le Rouge et le Noir » ?",["Stendhal","Victor Hugo","Gustave Flaubert","Émile Zola"],0],
+["Quel philosophe est l'auteur des « Pensées », mêlant réflexions religieuses et scientifiques ?",["Blaise Pascal","René Descartes","Voltaire","Montesquieu"],0],
+["Quel peintre pointilliste est l'auteur de « Un dimanche après-midi à l'Île de la Grande Jatte » ?",["Georges Seurat","Claude Monet","Paul Signac uniquement","Auguste Renoir"],0],
+["Qui a écrit « Les Trois Mousquetaires » ?",["Alexandre Dumas","Victor Hugo","Jules Verne","Gustave Flaubert"],0],
+["Quel philosophe existentialiste a écrit la pièce « Huis clos », d'où est tirée la citation « L'enfer, c'est les autres » ?",["Jean-Paul Sartre","Albert Camus","Simone de Beauvoir","Michel Foucault"],0],
+["Quel roi a fait construire le château de Chambord ?",["François Ier","Louis XIV","Henri IV","Louis XV"],0],
+["Sous quel règne a eu lieu la révocation de l'édit de Nantes, en 1685 ?",["Louis XIV","Louis XIII","Henri IV","Louis XVI"],0],
+["Quel traité met fin à la Première Guerre mondiale, signé en 1919 ?",["Le traité de Versailles","Le traité de Maastricht","Le traité de Rome","Le traité de Francfort"],0],
+["Quelle bataille de 1916, l'une des plus meurtrières de la Première Guerre mondiale, s'est déroulée dans la Meuse ?",["La bataille de Verdun","La bataille de la Somme","La bataille de la Marne","La bataille des Ardennes"],0],
+["Qui a présidé le Conseil national de la Résistance (CNR) en 1943 ?",["Jean Moulin","Charles de Gaulle","Pierre Brossolette","Georges Bidault"],0],
+["Quel débarquement allié du 15 août 1944 a permis la libération de la Provence, en complément de celui de Normandie ?",["Le débarquement de Provence","Le débarquement de Dieppe","Le débarquement d'Alger","Le débarquement de Corse"],0],
+],
+societe: [
+["Quelle instance amiable peut être saisie en cas de litige locatif entre propriétaire et locataire, avant le tribunal ?",["La commission départementale de conciliation","Le conseil de prud'hommes","Le tribunal de commerce","La Cour de cassation"],0],
+["Quel délai de préavis un locataire doit-il respecter pour un logement vide, hors zone tendue ?",["3 mois","1 mois","6 mois","Aucun préavis n'est requis"],0],
+["Quel délai de préavis réduit s'applique en zone tendue ou dans certains cas particuliers (mutation, perte d'emploi) ?",["1 mois","3 mois","6 mois","15 jours"],0],
+["Quel dispositif permet à un salarié de faire valoir ses droits acquis à la formation tout au long de sa carrière ?",["Le compte personnel de formation (CPF)","Le RSA","La prime d'activité","L'allocation de solidarité spécifique"],0],
+["Quelle est la durée minimale du congé maternité en France pour un premier ou un deuxième enfant ?",["16 semaines","10 semaines","25 semaines","6 semaines"],0],
+["Quel organisme verse les allocations familiales et gère les prestations liées à la famille ?",["La Caisse d'allocations familiales (CAF)","France Travail","L'Assurance maladie","La Cour des comptes"],0],
+["Quel dispositif garantit un revenu minimum aux personnes sans ressources suffisantes, sous conditions ?",["Le revenu de solidarité active (RSA)","Le SMIC","La prime d'activité, exclusivement","L'allocation chômage"],0],
+["Quelle est la principale différence entre le RSA et la prime d'activité ?",["Le RSA est un minimum social pour les personnes sans ressources suffisantes, la prime d'activité complète les revenus des travailleurs modestes","Ils sont strictement identiques","Le RSA est réservé aux plus de 50 ans","La prime d'activité ne concerne que les chômeurs"],0],
+["Quel juge est compétent pour un litige entre consommateur et commerçant portant sur un montant inférieur à 5000 euros ?",["Le juge des contentieux de la protection, au tribunal judiciaire","Le conseil de prud'hommes","Le tribunal de commerce uniquement","La cour d'assises"],0],
+["Quel est le délai de rétractation légal dont dispose un consommateur après un achat à distance (internet) ?",["14 jours","7 jours","30 jours","48 heures"],0],
+["Quel dispositif permet à un salarié de refuser d'exécuter une tâche présentant un danger grave et imminent ?",["Le droit de retrait","Le droit de grève","Le droit d'expression directe","Le préavis de licenciement"],0],
+["Quelle instance médicale du travail suit l'état de santé des salariés et peut déclarer une inaptitude ?",["Le médecin du travail, via les services de santé au travail","Le médecin traitant uniquement","La Sécurité sociale","L'inspection du travail"],0],
+["Quel est le rôle de l'inspection du travail ?",["Contrôler l'application du droit du travail dans les entreprises","Fixer les salaires","Gérer les retraites","Délivrer les diplômes professionnels"],0],
+["Quelle est la durée légale minimale du repos quotidien entre deux journées de travail ?",["11 heures consécutives","8 heures","24 heures","6 heures"],0],
+["Quel est l'âge légal de départ à la retraite en France depuis la réforme de 2023, pour les générations nées après 1968 ?",["64 ans","62 ans","65 ans","67 ans"],0],
+["Quel organisme gère l'assurance retraite de base des salariés du secteur privé ?",["La Caisse nationale d'assurance vieillesse (CNAV)","France Travail","La CAF","L'URSSAF"],0],
+["Quel organisme collecte les cotisations sociales des employeurs et des salariés ?",["L'URSSAF","France Travail","La Cour des comptes","Le Trésor public"],0],
+["Quelle instance évalue le taux d'incapacité et attribue certaines prestations aux personnes en situation de handicap ?",["La Maison départementale des personnes handicapées (MDPH)","La CAF","L'Assurance maladie seule","France Travail"],0],
+["Quel dispositif d'accompagnement humain permet à un élève en situation de handicap d'être aidé en classe ?",["L'accompagnant d'élèves en situation de handicap (AESH)","Le professeur principal","Le CPE uniquement","Le psychologue scolaire"],0],
+["Quel bilan de santé obligatoire est réalisé notamment lors de la visite médicale des 6 ans à l'école ?",["Un bilan de santé scolaire obligatoire","Aucun examen n'est obligatoire","Un test de QI","Un dépistage génétique"],0],
+["Quel dispositif permet de valider des compétences professionnelles acquises par l'expérience, sans diplôme initial ?",["La validation des acquis de l'expérience (VAE)","Le CPF","Le bilan de compétences","L'apprentissage"],0],
+["Quel contrat permet à un jeune de suivre une formation en alternant périodes en entreprise et en centre de formation ?",["Le contrat d'apprentissage","Le CDI","Le CDD saisonnier","Le contrat de professionnalisation réservé aux adultes"],0],
+["Quel régime gère désormais la protection sociale des travailleurs indépendants, depuis la suppression du RSI en 2018 ?",["La Sécurité sociale des indépendants, intégrée au régime général","La CAF","France Travail","La MDPH"],0],
+["Quelle instance représentative unique du personnel, dans les entreprises de plus de 11 salariés, a remplacé le comité d'entreprise, les délégués du personnel et le CHSCT ?",["Le comité social et économique (CSE)","Le conseil de prud'hommes","Le syndicat unique d'entreprise","La commission paritaire"],0],
+],
+};
+
+/* Construction de la banque finale avec id et catégorie */
+let ALL_QUESTIONS = [];
+Object.keys(BANK).forEach(catKey=>{
+  const merged = BANK[catKey].concat(HARDCORE_BANK[catKey]);
+  merged.forEach((item,i)=>{
+    ALL_QUESTIONS.push({
+      id: catKey + "-" + String(i+1).padStart(2,"0"),
+      cat: catKey,
+      q: item[0],
+      choices: item[1],
+      correct: item[2],
+      hardcore: i >= BANK[catKey].length
+    });
+  });
+});
+
+/* Construction des séances : 5 séances standard + 3 séances "Hardcore" de 40 (8 par thème) */
+const CAT_KEYS = Object.keys(CATS);
+const SESSIONS_COUNT = 8;
+const HARDCORE_START_SESSION = 5;
+const PER_CAT_PER_SESSION = 8;
+let SESSIONS = [];
+for(let s=0; s<SESSIONS_COUNT; s++){
+  let sessionQs = [];
+  CAT_KEYS.forEach(catKey=>{
+    const catQs = ALL_QUESTIONS.filter(q=>q.cat===catKey);
+    const slice = catQs.slice(s*PER_CAT_PER_SESSION, s*PER_CAT_PER_SESSION + PER_CAT_PER_SESSION);
+    sessionQs = sessionQs.concat(slice);
+  });
+  SESSIONS.push(sessionQs.map(q=>q.id));
+}
+
+const TOTAL_QUESTIONS = ALL_QUESTIONS.length;
+const QMAP = {};
+ALL_QUESTIONS.forEach(q=>QMAP[q.id]=q);
+
+/* =========================================================
+   ÉTAT / STOCKAGE
+   ========================================================= */
+const STORAGE_KEY = "civique_progress_v1";
+let progress = { completedSessions: [], sessionResults: {} };
+let currentSession = null;
+let currentIndex = 0;
+let currentAnswers = {};
+let currentDisplay = [];
+let timedMode = false;
+let timerInterval = null;
+let timeRemaining = 0;
+const SESSION_TIME_LIMIT = 40 * 60; // 40 minutes en secondes
+
+document.getElementById("timedToggle").addEventListener("change", (e)=>{
+  timedMode = e.target.checked;
+});
+
+function formatTime(sec){
+  const m = Math.floor(sec/60);
+  const s = sec % 60;
+  return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+
+function startTimer(){
+  stopTimer();
+  timeRemaining = SESSION_TIME_LIMIT;
+  updateTimerDisplay();
+  timerInterval = setInterval(()=>{
+    timeRemaining--;
+    updateTimerDisplay();
+    if(timeRemaining <= 0){
+      stopTimer();
+      finishSession(true);
+    }
+  }, 1000);
+}
+
+function stopTimer(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+}
+
+function updateTimerDisplay(){
+  const elDisplay = document.getElementById("timerDisplay");
+  if(!elDisplay) return;
+  elDisplay.textContent = "⏱ " + formatTime(Math.max(0,timeRemaining));
+  elDisplay.classList.toggle("warning", timeRemaining <= 120);
+}
+
+function seenCount(){
+  let set = new Set();
+  progress.completedSessions.forEach(s=> SESSIONS[s].forEach(id=>set.add(id)));
+  return set.size;
+}
+
+async function loadProgress(){
+  try{
+    const res = await window.storage.get("progress", false);
+    if(res && res.value){
+      progress = JSON.parse(res.value);
+    }
+  }catch(e){
+    progress = { completedSessions: [], sessionResults: {} };
+  }
+  renderHome();
+}
+
+async function saveProgress(){
+  try{
+    await window.storage.set("progress", JSON.stringify(progress), false);
+  }catch(e){
+    console.error("Erreur de sauvegarde", e);
+  }
+}
+
+async function resetProgress(){
+  if(!confirm("Réinitialiser toute la progression ? Vous reverrez toutes les séances depuis le début.")) return;
+  progress = { completedSessions: [], sessionResults: {} };
+  try{ await window.storage.delete("progress", false); }catch(e){}
+  renderHome();
+}
+
+/* =========================================================
+   RENDU — ACCUEIL
+   ========================================================= */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function el(tag, attrs, ...children){
+  const e = document.createElement(tag);
+  if(attrs) Object.keys(attrs).forEach(k=>{
+    if(k==="class") e.className = attrs[k];
+    else if(k==="html") e.innerHTML = attrs[k];
+    else if(k.startsWith("on")) e.addEventListener(k.substring(2), attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  });
+  children.flat().forEach(c=>{
+    if(c==null) return;
+    if(typeof c === "string") e.appendChild(document.createTextNode(c));
+    else e.appendChild(c);
+  });
+  return e;
+}
+
+function showScreen(name){
+  document.getElementById("screen-home").classList.toggle("hidden", name!=="home");
+  document.getElementById("screen-quiz").classList.toggle("hidden", name!=="quiz");
+  document.getElementById("screen-results").classList.toggle("hidden", name!=="results");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function renderHome(){
+  stopTimer();
+  const root = document.getElementById("screen-home");
+  root.innerHTML = "";
+
+  const seen = seenCount();
+  const allDone = progress.completedSessions.length === SESSIONS_COUNT;
+
+  if(allDone){
+    const c = el("div",{class:"congrats"},
+      el("h2",null,"🏅 Félicitations !"),
+      el("p",null,`Vous avez parcouru l'intégralité des ${TOTAL_QUESTIONS} questions, réparties sur les ${SESSIONS_COUNT} séances. Vous pouvez réviser vos points faibles ou tout réinitialiser pour recommencer un cycle complet.`)
+    );
+    root.appendChild(c);
+  }
+
+  const pc = el("div",{class:"progress-card"},
+    el("div",{class:"progress-top"},
+      el("span",{class:"progress-label"},"Progression générale"),
+      el("span",{class:"progress-count"}, `${seen} / ${TOTAL_QUESTIONS} questions vues`)
+    ),
+    el("div",{class:"progress-bar-track"},
+      el("div",{class:"progress-bar-fill", style:`width:${(seen/TOTAL_QUESTIONS*100).toFixed(1)}%`})
+    )
+  );
+  root.appendChild(pc);
+
+  const grid = el("div",{class:"session-grid"});
+  SESSIONS.forEach((ids, idx)=>{
+    const done = progress.completedSessions.includes(idx);
+    const result = progress.sessionResults[idx];
+    const isHardcore = idx >= HARDCORE_START_SESSION;
+    const card = el("div",{class:"session-card" + (done ? " done":"") + (isHardcore ? " hardcore":"")},
+      done ? el("div",{class:"stamp"},"VALIDÉ") : null,
+      el("div",{class:"session-left"},
+        el("div",{class:"session-num"}, String(idx+1).padStart(2,"0")),
+        el("div",{class:"session-info"},
+          el("h3",null, `Séance ${idx+1}` + (isHardcore ? " 🔥 Hardcore" : "")),
+          el("p",null, done
+            ? `Terminée — score : ${result ? result.score : "?"}/40`
+            : isHardcore
+              ? "40 questions mélangées — niveau technique et pointu (œuvres précises, droit approfondi, dates fines)"
+              : "40 questions mélangées — 8 de chacun des 5 thèmes (ordre imprévisible, comme à l'examen)")
+        )
+      ),
+      el("div",{class:"session-cta"}, done ? "Revoir le corrigé →" : "Commencer →")
+    );
+    card.addEventListener("click", ()=>{
+      if(done){
+        renderResultsFromHistory(idx);
+      }else{
+        startSession(idx);
+      }
+    });
+    grid.appendChild(card);
+  });
+  root.appendChild(grid);
+  showScreen("home");
+}
+
+/* =========================================================
+   QUIZ
+   ========================================================= */
+function startSession(idx){
+  currentSession = idx;
+  currentIndex = 0;
+  currentAnswers = {};
+  const ids = SESSIONS[idx];
+  currentDisplay = shuffle(ids).map(id=>{
+    const q = QMAP[id];
+    const order = shuffle([0,1,2,3]);
+    const shuffledChoices = order.map(o=>q.choices[o]);
+    const newCorrect = order.indexOf(q.correct);
+    return { id:q.id, cat:q.cat, q:q.q, choices:shuffledChoices, correct:newCorrect };
+  });
+  renderQuiz();
+  if(timedMode){ startTimer(); }
+}
+
+function renderQuiz(){
+  const root = document.getElementById("screen-quiz");
+  root.innerHTML = "";
+  const total = currentDisplay.length;
+  const item = currentDisplay[currentIndex];
+  const answeredCount = Object.keys(currentAnswers).length;
+
+  const header = el("div",{class:"quiz-header"},
+    el("span",{class:"quiz-progress-text"}, `Séance ${currentSession+1} — Question ${currentIndex+1} / ${total}`),
+    el("span",{class:"cat-tag"}, CATS[item.cat].label),
+    timedMode ? el("span",{class:"timer-display", id:"timerDisplay"}, "⏱ " + formatTime(timeRemaining)) : null
+  );
+  root.appendChild(header);
+
+  root.appendChild(el("div",{class:"quiz-bar-track"},
+    el("div",{class:"quiz-bar-fill", style:`width:${((currentIndex+1)/total*100).toFixed(1)}%`})
+  ));
+
+  const choicesDiv = el("div",{class:"choices"});
+  const letters = ["A","B","C","D"];
+  item.choices.forEach((choiceText, i)=>{
+    const selected = currentAnswers[item.id] === i;
+    const c = el("div",{class:"choice" + (selected ? " selected":"")},
+      el("span",{class:"choice-letter"}, letters[i]),
+      el("span",null, choiceText)
+    );
+    c.addEventListener("click", ()=>{
+      currentAnswers[item.id] = i;
+      renderQuiz();
+    });
+    choicesDiv.appendChild(c);
+  });
+
+  const card = el("div",{class:"question-card"},
+    el("p",{class:"q-text"}, item.q),
+    choicesDiv
+  );
+  root.appendChild(card);
+
+  const dots = el("div",{class:"dots"});
+  currentDisplay.forEach((it, i)=>{
+    const answered = currentAnswers.hasOwnProperty(it.id);
+    dots.appendChild(el("span",{class:"dot" + (answered?" answered":"") + (i===currentIndex?" current":"")}));
+  });
+
+  const isLast = currentIndex === total-1;
+  const nav = el("div",{class:"quiz-nav"},
+    el("button",{class:"btn btn-ghost", disabled: currentIndex===0 ? "true": null, onclick:()=>{ if(currentIndex>0){currentIndex--; renderQuiz();} }}, "← Précédent"),
+    dots,
+    isLast
+      ? el("button",{class:"btn btn-finish", onclick: finishSession}, "Terminer la séance ✓")
+      : el("button",{class:"btn btn-primary", onclick:()=>{ currentIndex++; renderQuiz(); }}, "Suivant →")
+  );
+  root.appendChild(nav);
+
+  showScreen("quiz");
+}
+
+async function finishSession(isTimeout){
+  stopTimer();
+  const timedOut = isTimeout === true;
+  const total = currentDisplay.length;
+  const answeredCount = Object.keys(currentAnswers).length;
+  if(!timedOut && answeredCount < total){
+    alert(`Il reste ${total - answeredCount} question(s) sans réponse. Merci de répondre à toutes les questions avant de valider.`);
+    return;
+  }
+  let score = 0;
+  const details = currentDisplay.map(item=>{
+    const hasAnswer = currentAnswers.hasOwnProperty(item.id);
+    const userIdx = currentAnswers[item.id];
+    const isCorrect = hasAnswer && userIdx === item.correct;
+    if(isCorrect) score++;
+    return {
+      id:item.id, cat:item.cat, q:item.q,
+      yourAnswer: hasAnswer ? item.choices[userIdx] : "Sans réponse (temps écoulé)",
+      correctAnswer: item.choices[item.correct],
+      isCorrect
+    };
+  });
+
+  progress.completedSessions.push(currentSession);
+  progress.sessionResults[currentSession] = { score, total, details, timedOut };
+  await saveProgress();
+
+  renderResults(currentSession, score, total, details, timedOut);
+}
+
+function renderResultsFromHistory(idx){
+  const r = progress.sessionResults[idx];
+  if(!r) { renderHome(); return; }
+  renderResults(idx, r.score, r.total, r.details, r.timedOut);
+}
+
+function renderResults(sessionIdx, score, total, details, timedOut){
+  const root = document.getElementById("screen-results");
+  root.innerHTML = "";
+
+  const pct = Math.round(score/total*100);
+  root.appendChild(el("div",{class:"score-banner"},
+    el("div",{class:"score-big"}, `${score} / ${total}`),
+    el("div",{class:"score-sub"}, `Séance ${sessionIdx+1} — ${pct}% de bonnes réponses` + (timedOut ? " — ⏱ Temps écoulé avant la fin" : ""))
+  ));
+
+  details.forEach((d,i)=>{
+    root.appendChild(el("div",{class:"review-item " + (d.isCorrect ? "right":"wrong")},
+      el("div",{class:"review-q"}, `${i+1}. ${d.q}`),
+      el("div",{class:"review-line"}, el("span",{class:"tag your"},"Votre réponse : "), el("span",null,d.yourAnswer)),
+      !d.isCorrect ? el("div",{class:"review-line"}, el("span",{class:"tag correct"},"Bonne réponse : "), el("span",null,d.correctAnswer)) : null
+    ));
+  });
+
+  root.appendChild(el("div",{class:"back-row"},
+    el("button",{class:"btn btn-primary", onclick: renderHome}, "← Retour à l'accueil")
+  ));
+
+  showScreen("results");
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+document.getElementById("resetBtn").addEventListener("click", resetProgress);
+loadProgress();
+</script>
+</body>
+</html>
